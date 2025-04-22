@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'yourdockerhubusername/hotstar-app'     // ✅ Change this
+        IMAGE_NAME = 'roshinikonda/hotstar-app'     // ✅ Change this
         IMAGE_TAG = "${BUILD_NUMBER}"
         DOCKER_CREDENTIALS_ID = 'dockerhub-creds'            // ✅ Jenkins credentials ID for DockerHub
         REMOTE_USER = 'ubuntu'                               // ✅ SSH username of your remote server
-        REMOTE_HOST = 'your.remote.server.ip'                // ✅ Remote server's public IP or DNS
+        REMOTE_HOST = '172.31.87.152'                // ✅ Remote server's public IP or DNS
         REMOTE_SSH_KEY = 'remote-ssh-key-id'                 // ✅ Jenkins credentials ID for SSH private key
     }
 
@@ -29,7 +29,7 @@ pipeline {
             steps {
                 echo "Pushing Docker image to DockerHub..."
                 withCredentials([usernamePassword(
-                    credentialsId: DOCKER_CREDENTIALS_ID,
+                    credentialsId: dockerhub-creds,
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
@@ -44,7 +44,7 @@ pipeline {
         stage('Deploy on Remote Server') {
             steps {
                 echo "Deploying on remote server..."
-                sshagent (credentials: [REMOTE_SSH_KEY]) {
+                sshagent (credentials: [remote-ssh-key-id]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST \\
                         'docker pull $IMAGE_NAME:$IMAGE_TAG && \\
